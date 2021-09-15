@@ -73,18 +73,22 @@ class Ps_modulebase extends Module
     {
         // Install default
         if (!parent::install()) {
+            self::logtxt('Error en install');
             return false;
         }
         // Install SQL
         if (!$this->addTables()) {
+            self::logtxt('Error en addTables');
             return false;
         }
         // Registration hook
         if (!$this->addHooks()) {
+            self::logtxt('Error en addHooks');
             return false;
         }
         // Variable of configuration
         if (!$this->addConfiguration()) {
+            self::logtxt('Error en addConfiguration');
             return false;
         }
        
@@ -96,14 +100,22 @@ class Ps_modulebase extends Module
 
         // Uninstall Default
         if (!parent::uninstall()) {
+            self::logtxt('Error en uninstall');
             return false;
         }
         //Uninstall DataBase
         if (!$this->deleteTables()) {
+            self::logtxt('Error en deleteTables');
             return false;
         }
         //Delete variables in Configuration
         if (!$this->deleteConfiguration()) {
+            self::logtxt('Error en deleteConfiguration');
+            return false;
+        }
+        //Uninstall Hooks
+        if (!$this->deleteHooks()) {
+            self::logtxt('Error en deleteHooks');
             return false;
         }
         
@@ -136,6 +148,20 @@ class Ps_modulebase extends Module
     }
 
     /**
+     * UnRegister hooks when the module is Desinstalled
+     *
+     * @return boolean
+     */
+    private function deleteHooks() {
+
+        $res = true;
+        $res &= $this->unRegisterHook('header');
+        $res &= $this->unRegisterHook('backOfficeHeader');
+        $res &= $this->unRegisterHook('displayHeader');
+        return $res;
+    }
+
+    /**
      * Create parameters of Configuration
      * 
      * @return boolean
@@ -148,6 +174,16 @@ class Ps_modulebase extends Module
             return true;
         else
             return false;
+    }
+
+    //metodo para validar las variables que vienen del form "back-end"
+    private function postValidation()
+    {
+        /*if (!Tools::getValue('PS_MODULEBASE_')) {
+            $this->_errors[] = $this->l('The field category is required');
+        }*/ /*elseif (!Tools::getValue('FACTURA_SECRETAPI')) {
+            $this->_errors[] = $this->l('The SECRET KEY field is required');
+        } */
     }
 
     /**
@@ -186,17 +222,31 @@ class Ps_modulebase extends Module
          * If values have been submitted in the form, process.
          */
         $output = '';
-        if (((bool)Tools::isSubmit('submitPs_modulebaseModule')) == true) {
-            $output = $this->displayConfirmation($this->l('Settings updated'));
-            $this->postProcess();
+        if (((bool)Tools::isSubmit('submitPrincipal')) == true) {
+            
+            // valida required fields
+            // $this->postValidation();
 
-            // active functionality
-            $active = Tools::getValue('PS_MODULEBASE_LIVE_MODE');
-            if($active){
-                self::logtxt('Modulo activado');
-                
+            if (!count($this->_errors)) {
+
+                $output = $this->displayConfirmation($this->l('Settings updated'));
+                $this->postProcess();
+
+                // active functionality
+                $active = Tools::getValue('PS_MODULEBASE_LIVE_MODE');
+                if($active){
+                    self::logtxt('Modulo activado');
+                    
+                }else{
+                    self::logtxt('Modulo desactivado');
+                }
+
             }else{
-                self::logtxt('Modulo desactivado');
+
+                foreach ($this->_errors as $error) {
+                    $output .= $this->displayError($error);
+                }
+
             }
 
         }
@@ -222,7 +272,7 @@ class Ps_modulebase extends Module
         $helper->allow_employee_form_lang = Configuration::get('PS_BO_ALLOW_EMPLOYEE_FORM_LANG', 0);
 
         $helper->identifier = $this->identifier;
-        $helper->submit_action = 'submitPs_modulebaseModule';
+        $helper->submit_action = 'submitPrincipal';
         $helper->currentIndex = $this->context->link->getAdminLink('AdminModules', false)
             .'&configure='.$this->name.'&tab_module='.$this->tab.'&module_name='.$this->name;
         $helper->token = Tools::getAdminTokenLite('AdminModules');
