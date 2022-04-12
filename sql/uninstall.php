@@ -31,7 +31,7 @@
  */
 $sql = array();
 
-$sql[] = 'DROP TABLE IF EXISTS `' . _DB_PREFIX_ . 'ps_modulebase`;';
+$sql[] = 'DROP TABLE IF EXISTS `' . _DB_PREFIX_ . 'modulebase`;';
 
 foreach ($sql as $query) {
     if (Db::getInstance()->execute($query) == false) {

@@ -25,7 +25,7 @@
 */
 $sql = array();
 
-$sql[] = "CREATE TABLE IF NOT EXISTS `" . _DB_PREFIX_ . "ps_modulebase` (
+$sql[] = "CREATE TABLE IF NOT EXISTS `" . _DB_PREFIX_ . "modulebase` (
     `id_ps_modulebase`  int(10) NOT NULL AUTO_INCREMENT ,
     `date_add`  datetime NULL DEFAULT current_timestamp(),
     `date_upd`  datetime NULL DEFAULT current_timestamp(),
